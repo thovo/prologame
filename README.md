@@ -8,13 +8,12 @@ prologame
 This game is valuable for enhancing calculating ability.
 
 ##Board, piece and players:
-
-    A rectangle which is divided into ten squares (5x2) with two semicircles at each end is drawn on the floor or the yard. The ten squares are called "rice field square", "fish pond square" or "citizen square" and the two semicircles are called "Mandarin squares".
-    Pieces may be stones, fruit seeds or any other small things.
-    Two players or two teams sit in two sides of the board. Each controls one side of the board.
-
+* A rectangle which is divided into ten squares (5x2) with two semicircles at each end is drawn on the floor or the yard.
+* The ten squares are called "rice field square", "fish pond square" or "citizen square" and the two semicircles are called "Mandarin squares".
+* Pieces may be stones, fruit seeds or any other small things.
+* Two players or two teams sit in two sides of the board. Each controls one side of the board.
+    
 ##Game rule:
-
 ###Setup:
 Each player places one big stone or ten small stones (called the "Mandarin piece") in the Mandarin square 
 as well as five small stones (called "citizen pieces") in each of the rice field squares.
