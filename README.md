@@ -41,4 +41,5 @@ When the next square is an empty Mandarin square, or the next two squares are em
 In some game variations, the Mandarin square can contain little citizen pieces called quan non 
 (literally: quan: Madarin, non: young/unripen) which may not be captured.
 
-
+###Reference
+Link : http://en.wikipedia.org/wiki/%C3%94_%C4%83n_quan
