@@ -1,0 +1,29 @@
+## Implementation Ideas
+
+## Other game references
+- Connect Four: https://github.com/alexisfasquel/prolog-connect4/tree/master/connect4
+- tic tac toe: http://www.montefiore.ulg.ac.be/~lens/prolog/tutorials/tictactoe.pl
+
+## Board Representation
+I- UI represenation:
+  1. Board drawing
+  2. Computer Move (show)
+  3. Player Move:
+    - User Input: (X,Y) for the next move
+  3. Show the score for 2 players
+    
+II- Code representation:
+  1. Game board will be represented as list of lists (rows are the inner lists, and columns are the elements)
+  2. Weight matrix which will be filled depending on the heuristic
+  3. Variables to store players scores
+
+## Main Game Loop (Choice of heuristic given as parameter)
+  1. Game over function
+  2. Select the next move for AI, then calculate score
+  3. Add the user move and update Game board, then calculate score
+
+## AI Strategies (Heuristics)
+  1. Compute the "sum" at each turn for each cell, then fill the weights matrix with the sums
+  2. Compute the "sum" at each turn for each cell, then fill the weights depending on the levels of sum (1 has low, 2 has very low, ...)
+  3. Compute the "sum" at each turn for each cell,  then fill the weights depending on the levels of sum (1 has low, 2 has very low, ...). The weights of the lower 3 sum levels (1,2,3), and 3 higher sum levels (4.5.6) will change dynamically (or maybe with fixed steps) as the game turns advance.
+  
