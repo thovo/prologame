@@ -36,6 +36,13 @@ II- Code representation:
     - update_score(Board_matrix, Human_move, Human_score) % This function will update the Human score.
     - show_score (human_score, Computer_score)
 
+# Utilities functions - Omar
+  get_row(matrix, cell, row) %Will return the row list of this cell
+  get_col(matrix, cell, col) %Will return the col list of this cell
+  get_diag1(matrix, cell, diag1) %Will return the forward diagonal list of this cell
+  get_diag2(matrix, cell, diag2) %Will return the backward diagonal list of this cell
+  scoring(dimension_list, score) %will take a row, col, diag1 or diag2, and return its score
+
 ## AI Strategies (Heuristics)
   1. Compute the "sum" at each turn for each cell, then fill the weights matrix with the sums
   2. Compute the "sum" at each turn for each cell, then fill the weights depending on the levels of sum (1 has low, 2 has very low, ...)
