@@ -18,9 +18,23 @@ II- Code representation:
   3. Variables to store players scores
 
 ## Main Game Loop (Choice of heuristic given as parameter)
+  #Variables:
+  Computer_score = 0
+  Human_score = 0
+  #Functions calls
   1. Game over function
+    - Check if the number of turn equal to N*N
+      -- If so, game over, show_score.
+    - gameover(Turns)
   2. Select the next move for AI, then calculate score
+    - select_move(Board_matrix, AI_move) %Note: AI move is a list [X,Y]
+    - update_board(Board_matrix, AI_move, New_board)
+    - update_score(Board_matrix, AI_move, Computer_score) % This function will update the computer score.
+    - show_score (human_score, Computer_score)
   3. Add the user move and update Game board, then calculate score
+    - update_board(Board_matrix, Human_move, New_board)
+    - update_score(Board_matrix, Human_move, Human_score) % This function will update the Human score.
+    - show_score (human_score, Computer_score)
 
 ## AI Strategies (Heuristics)
   1. Compute the "sum" at each turn for each cell, then fill the weights matrix with the sums
