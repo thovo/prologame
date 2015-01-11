@@ -28,10 +28,12 @@ II- Code representation:
     - gameover(Turns)
   2. Select the next move for AI, then calculate score
     - select_move(Board_matrix, AI_move) %Note: AI move is a list [X,Y]
+    - check_valid_move(AI_move)         % print invalid move and loop until valid move
     - update_board(Board_matrix, AI_move, New_board)
     - update_score(Board_matrix, AI_move, Computer_score) % This function will update the computer score.
     - show_score (human_score, Computer_score)
   3. Add the user move and update Game board, then calculate score
+    - check_valid_move(user_move)         % print invalid move and loop until valid move
     - update_board(Board_matrix, Human_move, New_board)
     - update_score(Board_matrix, Human_move, Human_score) % This function will update the Human score.
     - show_score (human_score, Computer_score)
