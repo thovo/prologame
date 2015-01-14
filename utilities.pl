@@ -16,7 +16,7 @@ gameover(Size, Turns):-
 select_move(Board_matrix, AI_move, Heuristic):-
 	Heuristic =:= 1,
 	naive_sum(Board_matrix, Weight_matrix),
-	get_mat_max(Weight_matrix, Max),!,
+	get_mat_max(Weight_matrix, Max), !, 
 	elem_index(Weight_matrix, Max, Row, Col), !,
 	Row_fixed is Row + 1,
 	Col_fixed is Col + 1,
@@ -24,7 +24,11 @@ select_move(Board_matrix, AI_move, Heuristic):-
 select_move(Board_matrix, AI_move, Heuristic):-
 	Heuristic =:= 2,
 	leveled_sum(Board_matrix, Weight_matrix),
-	get_mat_max(Weight_matrix, AI_move).
+	get_mat_max(Weight_matrix, Max), !, 
+	elem_index(Weight_matrix, Max, Row, Col), !,
+	Row_fixed is Row + 1,
+	Col_fixed is Col + 1,
+	AI_move = [Row_fixed,Col_fixed].
 select_move(Board_matrix, AI_move, Heuristic):-
 	Heuristic =:= 3,
 	dynamic_leveled_sum(Board_matrix, Weight_matrix),
@@ -143,8 +147,31 @@ remove_invalid([H|Board_matrix], [HW|Weight_matrix], [HWF|Weight_matrix_fixed]):
 remove_invalid_row([], [], []).
 remove_invalid_row([1|Row], [X|RWeights], [-1|RWeightsFixed]):-
 	remove_invalid_row(Row, RWeights, RWeightsFixed).
-remove_invalid_row([H|Row], [X|RWeights], [X|RWeightsFixed]):-
+remove_invalid_row([0|Row], [X|RWeights], [X|RWeightsFixed]):-
 	remove_invalid_row(Row, RWeights, RWeightsFixed).
+	
+% Get the discrete weight level of a sum
+get_weight_level(Weight, Weight_leveled):-
+	Weight =:= 1,
+	Weight_leveled = 1.
+get_weight_level(Weight, Weight_leveled):-
+	Weight =:= 2,
+	Weight_leveled = 5.
+get_weight_level(Weight, Weight_leveled):-
+	Weight =:= 3,
+	Weight_leveled = 2.
+get_weight_level(Weight, Weight_leveled):-
+	Weight =:= 4,
+	Weight_leveled = 0.
+get_weight_level(Weight, Weight_leveled):-
+	Weight =:= 5,
+	Weight_leveled = 7.
+get_weight_level(Weight, Weight_leveled):-
+	Weight =:= 6,
+	Weight_leveled = 1.
+%%%%%%%%%%%%%%%% Remember to add until level 9 %%%%%%%%%%%%%%%%%%
+get_weight_level(Weight, Weight):-
+	Weight < 1.
 	
 % Get the row of a given cell as a list
 get_row(Matrix, [X|_], Row):- %Note that the cell is [X,Y] -- Working FINE

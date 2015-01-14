@@ -93,3 +93,42 @@ naive_sum_row([X,Y], Board_matrix, []):-
 	length(Board_matrix, Size),
 	Y > Size.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Calculating the leveled sum heuristic
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+leveled_sum(Board_matrix, Weight_matrix_fixed):-
+	leveled_sum([1,1], Board_matrix, Weight_matrix),
+	remove_invalid(Board_matrix, Weight_matrix, Weight_matrix_fixed).
+
+leveled_sum([X,Y], Board_matrix, [HW|Weight_matrix]):-
+	length(Board_matrix, Size),
+	X =< Size,
+	leveled_sum_row([X,Y], Board_matrix, HW),
+	Xn is X + 1,
+	leveled_sum([Xn,Y], Board_matrix, Weight_matrix).
+
+leveled_sum([X,Y], Board_matrix, []):-
+	length(Board_matrix, Size),
+	X > Size.
+
+leveled_sum_row([X,Y], Board_matrix, [Hleveled|Row_weights]):-
+	length(Board_matrix, Size),
+	Y =< Size,
+	get_row(Board_matrix, [X,_], Row),
+	get_col(Board_matrix, [_,Y], Col),
+	get_diag1(Board_matrix, [X,Y], Diag1),
+	get_diag2(Board_matrix, [X,Y], Diag2),
+	sum_list(Row, Row_sum),
+	sum_list(Col, Col_sum),
+	sum_list(Diag1, Diag1_sum),
+	sum_list(Diag2, Diag2_sum),
+	max_list([Row_sum, Col_sum, Diag1_sum, Diag2_sum], H),
+	get_weight_level(H, Hleveled),
+	Yn is Y + 1,
+	leveled_sum_row([X, Yn], Board_matrix, Row_weights).
+
+leveled_sum_row([X,Y], Board_matrix, []):-
+	length(Board_matrix, Size),
+	Y > Size.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
