@@ -17,7 +17,6 @@ play369(Size, Heuristic):-
 	
 play(Size, Heuristic, Board_matrix, Computer_score, Player_score, Turns):-
 	select_move(Board_matrix, AI_move, Heuristic),
-	% check_valid_move(Board_matrix, AI_move),
 	
 	write('Computer: Here is my move: '),
 	write(AI_move),
@@ -31,15 +30,16 @@ play(Size, Heuristic, Board_matrix, Computer_score, Player_score, Turns):-
 	
 	show_score(Player_score, Total_Computer_score),
 	Next_turn is Turns + 1,
+	gameover(Size, Next_turn),
 	
 	% User input part
 	% ......some code....... %
 	write('Make your move: '),
 	read(User_move),
 	
-	check_valid_move(New_board, User_move),
+	check_user_move(New_board, User_move, Valid_move),
 	
-	update_board(New_board, User_move, New_board2),
+	update_board(New_board, Valid_move, New_board2),
 	draw_board(New_board2),
 	% Board_matrix is New_board,
 	
@@ -51,9 +51,13 @@ play(Size, Heuristic, Board_matrix, Computer_score, Player_score, Turns):-
 	% Check gameover condition
 	Next_turn2 is Next_turn + 1,
 	gameover(Size, Next_turn2),
-	play(Size, Heuristic, New_board2, Computer_score, Human_score, Next_turn).
+	play(Size, Heuristic, New_board2, Computer_score, Human_score, Next_turn2).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Utilities and Stub predicates %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Gameover predicate:
 gameover(Size, Turns):-
@@ -65,14 +69,15 @@ gameover(Size, Turns):-
 	show_score(Human_score, Computer_score),
 	fail.
 	
-	
 % Select AI move predicate
 select_move(Board_matrix, AI_move, Heuristic):-
 	Heuristic =:= 1,
 	naive_sum(Board_matrix, Weight_matrix),
-	get_mat_max(Weight_matrix, Max),
-	max_index(Weight_matrix, Max, Row, Col),
-	AI_move = [Row,Col].
+	get_mat_max(Weight_matrix, Max),!,
+	elem_index(Weight_matrix, Max, Row, Col), !,
+	Row_fixed is Row + 1,
+	Col_fixed is Col + 1,
+	AI_move = [Row_fixed,Col_fixed].
 select_move(Board_matrix, AI_move, Heuristic):-
 	Heuristic =:= 2,
 	leveled_sum(Board_matrix, Weight_matrix),
@@ -93,6 +98,15 @@ check_valid_move(Board_matrix, [X,Y]):-
 	nth0(Y_fix, Row, Element),
 	Element == 0.
 	
+% Repeat user input until valid move and return the valid one
+check_user_move(Board_matrix, [X,Y], [X,Y]):-
+	check_valid_move(Board_matrix, [X,Y]), !.
+check_user_move(Board_matrix, [X,Y], User_move):-
+	repeat,
+	write('Please enter a valid move: '),
+	read(User_move),
+	(check_valid_move(Board_matrix, User_move), ! ; fail).
+
 % Update Board predicate (Put stone in the selected position)
 update_board(Board_matrix, [X,Y], New_board):-
 	X_fix is X - 1, % Because input starts from 1, and list index start from 0
@@ -118,11 +132,6 @@ update_score(Board_matrix, Move, Score):-
 	% Don't forget to update the Global Variable (Computer_score or Human_score)
 	% by adding the Score variable to them.
 	
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Utilities and Stub predicates
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Create 369 game board predicate
 create_board(Size, Board_matrix):-
@@ -169,11 +178,11 @@ get_mat_max([H|Matrix], Max_H):-
 	max_list(H, Max_H),
 	Max_H >= Max.
 	
-max_index(Matrix, Value, Row, Col):-
+elem_index(Matrix, Value, Row, Col):-
   nth0(Row, Matrix, MatrixRow),
   nth0(Col, MatrixRow, Value).
 	
-% Stub draw_board predicate
+% Draw_board predicate
 draw_board([]):-
 	write('\n-------------\n').
 draw_board([H|Board_matrix]):-
@@ -191,11 +200,24 @@ get_col([_,Y], [H|Board_matrix], [HC|Col]):-
 	nth0(Y_fix, H, HC),
 	get_col([_,Y], Board_matrix, Col).
 	
+% Remove invalid moves from Weight Matrix, in order to avoid making invalid moves
+remove_invalid([], [], []).
+remove_invalid([H|Board_matrix], [HW|Weight_matrix], [HWF|Weight_matrix_fixed]):-
+	remove_invalid_row(H, HW, HWF),
+	remove_invalid(Board_matrix, Weight_matrix, Weight_matrix_fixed).
+	
+remove_invalid_row([], [], []).
+remove_invalid_row([1|Row], [X|RWeights], [-1|RWeightsFixed]):-
+	remove_invalid_row(Row, RWeights, RWeightsFixed).
+remove_invalid_row([H|Row], [X|RWeights], [X|RWeightsFixed]):-
+	remove_invalid_row(Row, RWeights, RWeightsFixed).
+	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Calculating the naive sum heuristic
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-naive_sum(Board_matrix, Weight_matrix):-
-	naive_sum([1,1], Board_matrix, Weight_matrix).
+naive_sum(Board_matrix, Weight_matrix_fixed):-
+	naive_sum([1,1], Board_matrix, Weight_matrix),
+	remove_invalid(Board_matrix, Weight_matrix, Weight_matrix_fixed).
 
 naive_sum([X,Y], Board_matrix, [HW|Weight_matrix]):-
 	length(Board_matrix, Size),
