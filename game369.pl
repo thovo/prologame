@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%
 % 3-6-9 Game Predicates %
 %%%%%%%%%%%%%%%%%%%%%%%%%
-:- include('utilities_trial.pl').
+:- include('utilities.pl').
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Main Game Predicate:
 play369(Size, Heuristic):-
