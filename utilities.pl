@@ -312,3 +312,8 @@ length(Matrix, Matrix_len),
 diag2_start([X,Y],[Xn,Yn],Matrix_len),
 %Get the column Yn
 get_diag2_w(Matrix, [Xn,Yn], Diag1).
+
+scoring([], 0).
+scoring([H|T], Sum) :-
+scoring(T, Rest), 
+Sum is H + Rest.
