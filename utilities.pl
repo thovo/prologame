@@ -13,7 +13,7 @@ gameover(Size, Turns):-
 	fail.
 	
 % Select AI move predicate
-select_move(Board_matrix, AI_move, Heuristic):-
+select_move(Board_matrix, AI_move, Heuristic, _):-
 	Heuristic =:= 1,
 	naive_sum(Board_matrix, Weight_matrix),
 	get_mat_max(Weight_matrix, Max), !, 
@@ -21,7 +21,7 @@ select_move(Board_matrix, AI_move, Heuristic):-
 	Row_fixed is Row + 1,
 	Col_fixed is Col + 1,
 	AI_move = [Row_fixed,Col_fixed].
-select_move(Board_matrix, AI_move, Heuristic):-
+select_move(Board_matrix, AI_move, Heuristic, _):-
 	Heuristic =:= 2,
 	leveled_sum(Board_matrix, Weight_matrix),
 	get_mat_max(Weight_matrix, Max), !, 
@@ -29,10 +29,14 @@ select_move(Board_matrix, AI_move, Heuristic):-
 	Row_fixed is Row + 1,
 	Col_fixed is Col + 1,
 	AI_move = [Row_fixed,Col_fixed].
-select_move(Board_matrix, AI_move, Heuristic):-
+select_move(Board_matrix, AI_move, Heuristic, Turns):-
 	Heuristic =:= 3,
-	dynamic_leveled_sum(Board_matrix, Weight_matrix),
-	get_mat_max(Weight_matrix, AI_move).
+	dynamic_sum(Turns, Board_matrix, Weight_matrix),
+	get_mat_max(Weight_matrix, Max), !, 
+	elem_index(Weight_matrix, Max, Row, Col), !,
+	Row_fixed is Row + 1,
+	Col_fixed is Col + 1,
+	AI_move = [Row_fixed,Col_fixed].
 	
 % Check move validity
 check_valid_move(Board_matrix, [X,Y]):-
@@ -131,12 +135,16 @@ elem_index(Matrix, Value, Row, Col):-
 	
 % Draw_board predicate
 draw_board([]):-
-	write('\n-------------\n').
+	write('\n\t\t===============================\n').
 draw_board([H|Board_matrix]):-
-	write('\n-------------\n'),
-	write(H),
+	write('\n\t\t| '),
+	draw_board_row(H),
 	draw_board(Board_matrix).
-
+draw_board_row([]).
+draw_board_row([E|Row]):-
+	write(E),
+	write(' | '),
+	draw_board_row(Row).
 	
 % Remove invalid moves from Weight Matrix, in order to avoid making invalid moves
 remove_invalid([], [], []).
@@ -150,7 +158,8 @@ remove_invalid_row([1|Row], [X|RWeights], [-1|RWeightsFixed]):-
 remove_invalid_row([0|Row], [X|RWeights], [X|RWeightsFixed]):-
 	remove_invalid_row(Row, RWeights, RWeightsFixed).
 	
-% Get the discrete weight level of a sum
+% Get the discrete weight level of a sum (used in heuristic 2)
+% The levels can be changed, but they are fixed during the game
 get_weight_level(Weight, Weight_leveled):-
 	Weight =:= 1,
 	Weight_leveled = 1.
@@ -172,7 +181,19 @@ get_weight_level(Weight, Weight_leveled):-
 %%%%%%%%%%%%%%%% Remember to add until level 9 %%%%%%%%%%%%%%%%%%
 get_weight_level(Weight, Weight):-
 	Weight < 1.
-	
+
+% Get the dynamic weight of a cell depending on the game turn and size (used in heuristic 3).
+% The weight levels change dynamically during the game
+% The current setting favours smaller scores at the game start, but favours higher scores as game advances
+get_dynamic_weight(Turns, Size, Weight, Dynamic_weight):-
+	get_weight_level(Weight, Weight_leveled),
+	Weight =< 3,
+	Dynamic_weight is (Weight_leveled / ((Turns+1)/Size)).
+get_dynamic_weight(Turns, Size, Weight, Dynamic_weight):-
+	get_weight_level(Weight, Weight_leveled),
+	Weight > 3,
+	Dynamic_weight is (Weight_leveled * ((Turns+1)/Size)).	
+
 % Get the row of a given cell as a list
 get_row(Matrix, [X|_], Row):- %Note that the cell is [X,Y] -- Working FINE
 nth1(X, Matrix, Row).

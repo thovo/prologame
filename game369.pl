@@ -16,7 +16,7 @@ play369(Size, Heuristic):-
 	play(Size, Heuristic, Board_matrix, Computer_score, Player_score, Turns).
 	
 play(Size, Heuristic, Board_matrix, Computer_score, Player_score, Turns):-
-	select_move(Board_matrix, AI_move, Heuristic),
+	select_move(Board_matrix, AI_move, Heuristic, Turns),
 	
 	write('Computer: Here is my move: '),
 	write(AI_move),
@@ -56,9 +56,9 @@ play(Size, Heuristic, Board_matrix, Computer_score, Player_score, Turns):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Calculating the naive sum heuristic
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Calculating the naive sum heuristic (Heuristic 1)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 naive_sum(Board_matrix, Weight_matrix_fixed):-
 	naive_sum([1,1], Board_matrix, Weight_matrix),
 	remove_invalid(Board_matrix, Weight_matrix, Weight_matrix_fixed).
@@ -92,11 +92,11 @@ naive_sum_row([X,Y], Board_matrix, [H|Row_weights]):-
 naive_sum_row([X,Y], Board_matrix, []):-
 	length(Board_matrix, Size),
 	Y > Size.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Calculating the leveled sum heuristic
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Calculating the leveled sum heuristic (Heuristic 2)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 leveled_sum(Board_matrix, Weight_matrix_fixed):-
 	leveled_sum([1,1], Board_matrix, Weight_matrix),
 	remove_invalid(Board_matrix, Weight_matrix, Weight_matrix_fixed).
@@ -129,6 +129,45 @@ leveled_sum_row([X,Y], Board_matrix, [Hleveled|Row_weights]):-
 	leveled_sum_row([X, Yn], Board_matrix, Row_weights).
 
 leveled_sum_row([X,Y], Board_matrix, []):-
+	length(Board_matrix, Size),
+	Y > Size.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Calculating the dynamic leveled sum heuristic (Heuristic 3)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+dynamic_sum(Turns, Board_matrix, Weight_matrix_fixed):-
+	dynamic_sum([1,1], Turns, Board_matrix, Weight_matrix),
+	remove_invalid(Board_matrix, Weight_matrix, Weight_matrix_fixed).
+
+dynamic_sum([X,Y], Turns, Board_matrix, [HW|Weight_matrix]):-
+	length(Board_matrix, Size),
+	X =< Size,
+	dynamic_sum_row([X,Y], Turns, Board_matrix, HW),
+	Xn is X + 1,
+	dynamic_sum([Xn,Y], Turns, Board_matrix, Weight_matrix).
+
+dynamic_sum([X,Y], _, Board_matrix, []):-
+	length(Board_matrix, Size),
+	X > Size.
+
+dynamic_sum_row([X,Y], Turns, Board_matrix, [DynamicW|Row_weights]):-
+	length(Board_matrix, Size),
+	Y =< Size,
+	get_row(Board_matrix, [X,_], Row),
+	get_col(Board_matrix, [_,Y], Col),
+	get_diag1(Board_matrix, [X,Y], Diag1),
+	get_diag2(Board_matrix, [X,Y], Diag2),
+	sum_list(Row, Row_sum),
+	sum_list(Col, Col_sum),
+	sum_list(Diag1, Diag1_sum),
+	sum_list(Diag2, Diag2_sum),
+	max_list([Row_sum, Col_sum, Diag1_sum, Diag2_sum], H),
+	get_dynamic_weight(Turns, Size, H, DynamicW),
+	Yn is Y + 1,
+	dynamic_sum_row([X, Yn], Turns, Board_matrix, Row_weights).
+
+dynamic_sum_row([X,Y], _, Board_matrix, []):-
 	length(Board_matrix, Size),
 	Y > Size.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
