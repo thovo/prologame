@@ -2,6 +2,7 @@
 % 3-6-9 Game Predicates %
 %%%%%%%%%%%%%%%%%%%%%%%%%
 :- include('utilities.pl').
+:- include('AI_player.pl').
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Main Game Predicate:
 play369(Size, Heuristic):-
@@ -75,11 +76,9 @@ play(Size, Heuristic, Board_matrix, Computer_score, Player_score, Turns):-
 % Gameover predicate:
 gameover(Size, Turns):-
 	Turns < Size*Size.
-	% fail.	
 gameover(Size, Turns):-
 	Turns =:= Size*Size,
-	write('Game Over!'),
-	show_score(Human_score, Computer_score),
+	write('\t\tGame Over!'),
 	fail.
 
 % Select AI move predicate
@@ -111,7 +110,7 @@ select_move(Board_matrix, AI_move, Heuristic, Turns):-
 % Repeat user input until valid move and return the valid one
 check_user_move(Board_matrix, [X,Y], [X,Y]):-
 	check_valid_move(Board_matrix, [X,Y]), !.
-check_user_move(Board_matrix, [X,Y], User_move):-
+check_user_move(Board_matrix, _, User_move):-
 	repeat,
 	write('Please enter a valid move: '),
 	read(User_move),

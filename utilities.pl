@@ -49,7 +49,7 @@ replace(Index, Element, [H|List], [H|NList]):-
 	Index > 0,
 	NIndex is Index - 1,
 	replace(NIndex, Element, List, NList).
-replace(Index, Element, [H|List], [Element|NList]):-
+replace(Index, Element, [_|List], [Element|NList]):-
 	Index == 0,
 	NIndex is Index - 1,
 	replace(NIndex, _, List, NList).
@@ -93,7 +93,7 @@ remove_invalid([H|Board_matrix], [HW|Weight_matrix], [HWF|Weight_matrix_fixed]):
 	remove_invalid(Board_matrix, Weight_matrix, Weight_matrix_fixed).
 % Remove invalid moves from one row (Invalid moves are the ones already having stones)
 remove_invalid_row([], [], []).
-remove_invalid_row([1|Row], [X|RWeights], [-1|RWeightsFixed]):-
+remove_invalid_row([1|Row], [_|RWeights], [-1|RWeightsFixed]):-
 	remove_invalid_row(Row, RWeights, RWeightsFixed).
 remove_invalid_row([0|Row], [X|RWeights], [X|RWeightsFixed]):-
 	remove_invalid_row(Row, RWeights, RWeightsFixed).
@@ -130,11 +130,11 @@ Xn is X-1,
 Yn is Y-1,
 diag1_start([Xn,Yn],[Xx,Yy],Matrix_len).
 
-get_diag1_w(Matrix,[X,Y], []):- 
+get_diag1_w(Matrix,[X,_], []):- 
 length(Matrix, Matrix_len),
 X > Matrix_len, !. 
 
-get_diag1_w(Matrix,[X,Y], []):- 
+get_diag1_w(Matrix,[_,Y], []):- 
 length(Matrix, Matrix_len),
 Y > Matrix_len, !. 
 
@@ -146,7 +146,6 @@ nth1(X, Col, Req_element), %Get the needed column
 %Increase the X and Y indices
 NewX is X+1,
 NewY is Y+1,
-length(Matrix, Matrix_len),
 get_diag1_w(Matrix, [NewX,NewY], Diag1).
 
 get_diag1(Matrix, [X,Y], Diag1):-
@@ -170,7 +169,7 @@ get_diag1_w(Matrix, [Xn,Yn], Diag1).
 % Get the forward diagonal of a given cell as a list
 diag2_start([Xn,Y],[Xn,Y],Matrix_len):- 
 Y =:= Matrix_len, !.
-diag2_start([1,Yn],[1,Yn],Matrix_len):- !.
+diag2_start([1,Yn],[1,Yn],_):- !.
 
 diag2_start([X,Y],[Xx,Yy],Matrix_len):-
 X > 1,
@@ -179,12 +178,11 @@ Xn is X-1,
 Yn is Y+1,
 diag2_start([Xn,Yn],[Xx,Yy],Matrix_len).
 
-get_diag2_w(Matrix,[X,Y], []):- 
+get_diag2_w(Matrix,[X,_], []):- 
 length(Matrix, Matrix_len),
 X > Matrix_len, !. 
 
-get_diag2_w(Matrix,[X,Y], []):- 
-length(Matrix, Matrix_len),
+get_diag2_w(_,[_,Y], []):- 
 Y < 1, !. 
 
 get_diag2_w(Matrix, [X,Y], [Req_element|Diag1]):-
@@ -195,7 +193,6 @@ nth1(X, Col, Req_element), %Get the needed column
 %Adjust the X and Y indices
 NewX is X+1,
 NewY is Y-1,
-length(Matrix, Matrix_len),
 get_diag2_w(Matrix, [NewX,NewY], Diag1).
 
 get_diag2(Matrix, [X,Y], Diag1):-

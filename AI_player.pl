@@ -25,7 +25,7 @@ naive_sum([X,Y], Board_matrix, [HW|Weight_matrix]):-
 	Xn is X + 1,
 	naive_sum([Xn,Y], Board_matrix, Weight_matrix).
 
-naive_sum([X,Y], Board_matrix, []):-
+naive_sum([X,_], Board_matrix, []):-
 	length(Board_matrix, Size),
 	X > Size.
 
@@ -44,7 +44,7 @@ naive_sum_row([X,Y], Board_matrix, [H|Row_weights]):-
 	Yn is Y + 1,
 	naive_sum_row([X, Yn], Board_matrix, Row_weights).
 
-naive_sum_row([X,Y], Board_matrix, []):-
+naive_sum_row([_,Y], Board_matrix, []):-
 	length(Board_matrix, Size),
 	Y > Size.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -63,7 +63,7 @@ leveled_sum([X,Y], Board_matrix, [HW|Weight_matrix]):-
 	Xn is X + 1,
 	leveled_sum([Xn,Y], Board_matrix, Weight_matrix).
 
-leveled_sum([X,Y], Board_matrix, []):-
+leveled_sum([X,_], Board_matrix, []):-
 	length(Board_matrix, Size),
 	X > Size.
 
@@ -83,7 +83,7 @@ leveled_sum_row([X,Y], Board_matrix, [Hleveled|Row_weights]):-
 	Yn is Y + 1,
 	leveled_sum_row([X, Yn], Board_matrix, Row_weights).
 
-leveled_sum_row([X,Y], Board_matrix, []):-
+leveled_sum_row([_,Y], Board_matrix, []):-
 	length(Board_matrix, Size),
 	Y > Size.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -102,7 +102,7 @@ dynamic_sum([X,Y], Turns, Board_matrix, [HW|Weight_matrix]):-
 	Xn is X + 1,
 	dynamic_sum([Xn,Y], Turns, Board_matrix, Weight_matrix).
 
-dynamic_sum([X,Y], _, Board_matrix, []):-
+dynamic_sum([X,_], _, Board_matrix, []):-
 	length(Board_matrix, Size),
 	X > Size.
 
@@ -122,7 +122,7 @@ dynamic_sum_row([X,Y], Turns, Board_matrix, [DynamicW|Row_weights]):-
 	Yn is Y + 1,
 	dynamic_sum_row([X, Yn], Turns, Board_matrix, Row_weights).
 
-dynamic_sum_row([X,Y], _, Board_matrix, []):-
+dynamic_sum_row([_,Y], _, Board_matrix, []):-
 	length(Board_matrix, Size),
 	Y > Size.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
