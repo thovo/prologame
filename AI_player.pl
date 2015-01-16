@@ -169,8 +169,8 @@ get_weight_level(Weight, Weight):-
 get_dynamic_weight(Turns, Size, Weight, Dynamic_weight):-
 	get_weight_level(Weight, Weight_leveled),
 	Weight =< 3,
-	Dynamic_weight is (Weight_leveled / ((Turns+1)/Size)).
+	Dynamic_weight is (Weight_leveled / ((Turns+1)/(Size*Size))).
 get_dynamic_weight(Turns, Size, Weight, Dynamic_weight):-
 	get_weight_level(Weight, Weight_leveled),
 	Weight > 3,
-	Dynamic_weight is (Weight_leveled * ((Turns+1)/Size)).	
+	Dynamic_weight is (Weight_leveled * ((Turns+1)/(Size*Size))).	
