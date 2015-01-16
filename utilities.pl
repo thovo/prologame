@@ -80,8 +80,6 @@ update_score(Board_matrix, Move, Score):-
 	scoring(Diag2, Diag2_score),
 	% Total the score of the move
 	Score is Row_score + Col_score + Diag1_score + Diag2_score.
-	% Don't forget to update the Global Variable (Computer_score or Human_score)
-	% by adding the Score variable to them.
 	
 
 % Create 369 game board predicate
@@ -101,8 +99,17 @@ create_list_zeros(Size, [0|List]):-
 	NSize is Size - 1,
 	create_list_zeros(NSize, List).
 
-% show_score stub predicate
-show_score(Player_score, Computer_score).
+% Show the player and AI score in neat format
+show_score(Player_score, Computer_score):-
+	write('\n-----------------------------------------'),
+	write('\n|\t\t\t\t\t|\n'),
+	write('|   Player Score = '),
+	write(Player_score),
+	write(' | AI Score = '),
+	write(Computer_score),
+	write('\t|'),
+	write('\n|\t\t\t\t\t|'),
+	write('\n-----------------------------------------\n').
 
 % Replace the Index of a List, by Element, and return the new list
 replace(_, _, [], []).
@@ -188,11 +195,11 @@ get_weight_level(Weight, Weight):-
 get_dynamic_weight(Turns, Size, Weight, Dynamic_weight):-
 	get_weight_level(Weight, Weight_leveled),
 	Weight =< 3,
-	Dynamic_weight is (Weight_leveled / ((Turns+1)/Size)).
+	Dynamic_weight is (Weight_leveled / ((Turns+1)/(Size*Size))).
 get_dynamic_weight(Turns, Size, Weight, Dynamic_weight):-
 	get_weight_level(Weight, Weight_leveled),
 	Weight > 3,
-	Dynamic_weight is (Weight_leveled * ((Turns+1)/Size)).	
+	Dynamic_weight is (Weight_leveled * ((Turns+1)/(Size*Size))).	
 
 % Get the row of a given cell as a list
 get_row(Matrix, [X|_], Row):- %Note that the cell is [X,Y] -- Working FINE
@@ -313,7 +320,22 @@ diag2_start([X,Y],[Xn,Yn],Matrix_len),
 %Get the column Yn
 get_diag2_w(Matrix, [Xn,Yn], Diag1).
 
-scoring([], 0).
-scoring([H|T], Sum) :-
-scoring(T, Rest), 
-Sum is H + Rest.
+% Scoring function to score a certain row, col, or diagonal
+% Give (Score = 1, for 3 stones) (Score = 2, for 6 stones) (Score = 1, for 9 stones)
+scoring(Dim, 0):-
+	sum_list(Dim, Sum),
+	Sum =\= 3,
+	Sum =\= 6,
+	Sum =\= 9, !.
+scoring(Dim, Dim_score):-
+	sum_list(Dim, Sum),
+	Sum =:= 3, !,
+	Dim_score = 1.
+scoring(Dim, Dim_score):-
+	sum_list(Dim, Sum),
+	Sum =:= 6, !,
+	Dim_score = 2.
+scoring(Dim, Dim_score):-
+	sum_list(Dim, Sum),
+	Sum =:= 9, !,
+	Dim_score = 3.

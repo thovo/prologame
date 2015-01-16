@@ -23,12 +23,11 @@ play(Size, Heuristic, Board_matrix, Computer_score, Player_score, Turns):-
 	
 	update_board(Board_matrix, AI_move, New_board),
 	draw_board(New_board),
-	% Board_matrix is New_board,
 	
-	% update_score(New_board, AI_move, New_AI_score),
-	% Total_Computer_score is Computer_score + New_AI_score,
+	update_score(New_board, AI_move, New_AI_score),
+	Total_AI_score is Computer_score + New_AI_score,
 	
-	show_score(Player_score, Total_Computer_score),
+	show_score(Player_score, Total_AI_score),
 	Next_turn is Turns + 1,
 	gameover(Size, Next_turn),
 	
@@ -42,17 +41,16 @@ play(Size, Heuristic, Board_matrix, Computer_score, Player_score, Turns):-
 	
 	update_board(New_board, Valid_move, New_board2),
 	draw_board(New_board2),
-	% Board_matrix is New_board,
 	
-	% update_score(P_New_board, User_move, New_Player_score),
-	% Total_Player_score is Player_score + New_Player_score,
+	update_score(New_board2, User_move, New_Player_score),
+	Total_Player_score is Player_score + New_Player_score,
 	
-	show_score(Total_Player_score, Total_Computer_score),
+	show_score(Total_Player_score, Total_AI_score),
 	
 	% Check gameover condition
 	Next_turn2 is Next_turn + 1,
 	gameover(Size, Next_turn2),
-	play(Size, Heuristic, New_board2, Computer_score, Human_score, Next_turn2).
+	play(Size, Heuristic, New_board2, Total_AI_score, Total_Player_score, Next_turn2).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
