@@ -1,42 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Utilities and Stub predicates %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Gameover predicate:
-gameover(Size, Turns):-
-	Turns < Size*Size.
-	% fail.	
-gameover(Size, Turns):-
-	Turns =:= Size*Size,
-	write('Game Over!'),
-	show_score(Human_score, Computer_score),
-	fail.
-	
-% Select AI move predicate
-select_move(Board_matrix, AI_move, Heuristic, _):-
-	Heuristic =:= 1,
-	naive_sum(Board_matrix, Weight_matrix),
-	get_mat_max(Weight_matrix, Max), !, 
-	elem_index(Weight_matrix, Max, Row, Col), !,
-	Row_fixed is Row + 1,
-	Col_fixed is Col + 1,
-	AI_move = [Row_fixed,Col_fixed].
-select_move(Board_matrix, AI_move, Heuristic, _):-
-	Heuristic =:= 2,
-	leveled_sum(Board_matrix, Weight_matrix),
-	get_mat_max(Weight_matrix, Max), !, 
-	elem_index(Weight_matrix, Max, Row, Col), !,
-	Row_fixed is Row + 1,
-	Col_fixed is Col + 1,
-	AI_move = [Row_fixed,Col_fixed].
-select_move(Board_matrix, AI_move, Heuristic, Turns):-
-	Heuristic =:= 3,
-	dynamic_sum(Turns, Board_matrix, Weight_matrix),
-	get_mat_max(Weight_matrix, Max), !, 
-	elem_index(Weight_matrix, Max, Row, Col), !,
-	Row_fixed is Row + 1,
-	Col_fixed is Col + 1,
-	AI_move = [Row_fixed,Col_fixed].
 	
 % Check move validity
 check_valid_move(Board_matrix, [X,Y]):-
@@ -48,38 +12,6 @@ check_valid_move(Board_matrix, [X,Y]):-
 	nth0(X_fix, Board_matrix, Row),
 	nth0(Y_fix, Row, Element),
 	Element == 0.
-	
-% Repeat user input until valid move and return the valid one
-check_user_move(Board_matrix, [X,Y], [X,Y]):-
-	check_valid_move(Board_matrix, [X,Y]), !.
-check_user_move(Board_matrix, [X,Y], User_move):-
-	repeat,
-	write('Please enter a valid move: '),
-	read(User_move),
-	(check_valid_move(Board_matrix, User_move), ! ; fail).
-
-% Update Board predicate (Put stone in the selected position)
-update_board(Board_matrix, [X,Y], New_board):-
-	X_fix is X - 1, % Because input starts from 1, and list index start from 0
-	Y_fix is Y - 1, % Because input starts from 1, and list index start from 0
-	nth0(X_fix, Board_matrix, Row),
-	replace(Y_fix, 1, Row, New_Row),
-	replace(X_fix, New_Row, Board_matrix, New_board).
-	
-% Update score predicate
-update_score(Board_matrix, Move, Score):-
-	% Getting the row, col, diagonals which a point belongs to
-	get_row(Board_matrix, Move, Row),
-	get_col(Board_matrix, Move, Col),
-	get_diag1(Board_matrix, Move, Diag1),
-	get_diag2(Board_matrix, Move, Diag2),
-	% Score each of them
-	scoring(Row, Row_score),
-	scoring(Col, Col_score),
-	scoring(Diag1, Diag1_score),
-	scoring(Diag2, Diag2_score),
-	% Total the score of the move
-	Score is Row_score + Col_score + Diag1_score + Diag2_score.
 	
 
 % Create 369 game board predicate
@@ -154,52 +86,17 @@ draw_board_row([E|Row]):-
 	draw_board_row(Row).
 	
 % Remove invalid moves from Weight Matrix, in order to avoid making invalid moves
+% (Invalid moves are the moves already having stones)
 remove_invalid([], [], []).
 remove_invalid([H|Board_matrix], [HW|Weight_matrix], [HWF|Weight_matrix_fixed]):-
 	remove_invalid_row(H, HW, HWF),
 	remove_invalid(Board_matrix, Weight_matrix, Weight_matrix_fixed).
-	
+% Remove invalid moves from one row (Invalid moves are the ones already having stones)
 remove_invalid_row([], [], []).
 remove_invalid_row([1|Row], [X|RWeights], [-1|RWeightsFixed]):-
 	remove_invalid_row(Row, RWeights, RWeightsFixed).
 remove_invalid_row([0|Row], [X|RWeights], [X|RWeightsFixed]):-
 	remove_invalid_row(Row, RWeights, RWeightsFixed).
-	
-% Get the discrete weight level of a sum (used in heuristic 2)
-% The levels can be changed, but they are fixed during the game
-get_weight_level(Weight, Weight_leveled):-
-	Weight =:= 1,
-	Weight_leveled = 1.
-get_weight_level(Weight, Weight_leveled):-
-	Weight =:= 2,
-	Weight_leveled = 5.
-get_weight_level(Weight, Weight_leveled):-
-	Weight =:= 3,
-	Weight_leveled = 2.
-get_weight_level(Weight, Weight_leveled):-
-	Weight =:= 4,
-	Weight_leveled = 0.
-get_weight_level(Weight, Weight_leveled):-
-	Weight =:= 5,
-	Weight_leveled = 7.
-get_weight_level(Weight, Weight_leveled):-
-	Weight =:= 6,
-	Weight_leveled = 1.
-%%%%%%%%%%%%%%%% Remember to add until level 9 %%%%%%%%%%%%%%%%%%
-get_weight_level(Weight, Weight):-
-	Weight < 1.
-
-% Get the dynamic weight of a cell depending on the game turn and size (used in heuristic 3).
-% The weight levels change dynamically during the game
-% The current setting favours smaller scores at the game start, but favours higher scores as game advances
-get_dynamic_weight(Turns, Size, Weight, Dynamic_weight):-
-	get_weight_level(Weight, Weight_leveled),
-	Weight =< 3,
-	Dynamic_weight is (Weight_leveled / ((Turns+1)/(Size*Size))).
-get_dynamic_weight(Turns, Size, Weight, Dynamic_weight):-
-	get_weight_level(Weight, Weight_leveled),
-	Weight > 3,
-	Dynamic_weight is (Weight_leveled * ((Turns+1)/(Size*Size))).	
 
 % Get the row of a given cell as a list
 get_row(Matrix, [X|_], Row):- %Note that the cell is [X,Y] -- Working FINE
@@ -220,15 +117,11 @@ maplist(nth1(Req_col), Matrix, Col).
 %		- Increase Xn and Yn by +1.
 %		- Make sure that Xn and Yn doesn't exceed the dimensions of the matrix (N x N).
 %		- Concatenate the "Z" into one list.
-%	Note:
-%		- If this works, the get_diag2 should be something similar.
 
 % Get the backward diagonal of a given cell as a list
 diag1_start([1,1],[1,1],_):- !.
-diag1_start([Xn,1],[Xn,1],_):- 
-!.
-diag1_start([1,Yn],[1,Yn],_):- 
-!.
+diag1_start([Xn,1],[Xn,1],_):- !.
+diag1_start([1,Yn],[1,Yn],_):- !.
 
 diag1_start([X,Y],[Xx,Yy],Matrix_len):-
 X > 1,
@@ -239,13 +132,11 @@ diag1_start([Xn,Yn],[Xx,Yy],Matrix_len).
 
 get_diag1_w(Matrix,[X,Y], []):- 
 length(Matrix, Matrix_len),
-X > Matrix_len,
-!. 
+X > Matrix_len, !. 
 
 get_diag1_w(Matrix,[X,Y], []):- 
 length(Matrix, Matrix_len),
-Y > Matrix_len,
-!. 
+Y > Matrix_len, !. 
 
 get_diag1_w(Matrix, [X,Y], [Req_element|Diag1]):-
 %Get the needed column
@@ -275,15 +166,11 @@ get_diag1_w(Matrix, [Xn,Yn], Diag1).
 %		- Increase Xn and Yn by -1.
 %		- Make sure that Xn and Yn doesn't exceed the dimensions of the matrix (N x N).
 %		- Concatenate the "Z" into one list.
-%	Note:
-%		- If this works, the get_diag2 should be something similar.
 
 % Get the forward diagonal of a given cell as a list
 diag2_start([Xn,Y],[Xn,Y],Matrix_len):- 
-Y =:= Matrix_len,
-!.
-diag2_start([1,Yn],[1,Yn],Matrix_len):- 
-!.
+Y =:= Matrix_len, !.
+diag2_start([1,Yn],[1,Yn],Matrix_len):- !.
 
 diag2_start([X,Y],[Xx,Yy],Matrix_len):-
 X > 1,
@@ -294,13 +181,11 @@ diag2_start([Xn,Yn],[Xx,Yy],Matrix_len).
 
 get_diag2_w(Matrix,[X,Y], []):- 
 length(Matrix, Matrix_len),
-X > Matrix_len,
-!. 
+X > Matrix_len, !. 
 
 get_diag2_w(Matrix,[X,Y], []):- 
 length(Matrix, Matrix_len),
-Y < 1,
-!. 
+Y < 1, !. 
 
 get_diag2_w(Matrix, [X,Y], [Req_element|Diag1]):-
 %Get the needed column
